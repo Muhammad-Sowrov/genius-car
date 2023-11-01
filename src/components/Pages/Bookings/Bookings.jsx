@@ -14,24 +14,47 @@ const Bookings = () => {
       });
   }, [url]);
 
-
-  const handleDelete = id => {
-    const proceed = confirm('Are you sure, you want to delete?');
+  const handleDelete = (id) => {
+    const proceed = confirm("Are you sure, you want to delete?");
     if (proceed) {
       fetch(`http://localhost:5000/checkout/${id}`, {
-        method: "DELETE"
+        method: "DELETE",
       })
-      .then(res => res.json())
-      .then(data => {
-        console.log(data);
-        if (data.deletedCount > 0) {
-          alert('Successfully deleted');
-          const remaining = bookings.filter(booking => booking._id !== id);
-          setBookings(remaining);
-        }
-      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          if (data.deletedCount > 0) {
+            alert("Successfully deleted");
+            const remaining = bookings.filter((booking) => booking._id !== id);
+            setBookings(remaining);
+          }
+        });
     }
-  }
+  };
+
+  const handleUpdate = (id) => {
+    fetch(`http://localhost:5000/checkout/${id}`, {
+      method: "PATCH",
+      headers: {
+        "content-type" : "application/json"
+      },
+      body: JSON.stringify({status: 'confirm'})
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        if (data.modifiedCount > 0) {
+          // update state
+          const remaining = bookings.filter(booking=> booking._id !== id);
+          const changed = bookings.find(booking => booking._id === id);
+          changed.status = 'confirm';
+          const newBooking = [changed, ...remaining];
+          setBookings(newBooking);
+
+
+        }
+      });
+  };
   return (
     <div>
       <h2 className="container mx-auto text-3xl">
@@ -50,17 +73,18 @@ const Bookings = () => {
               <th>Name</th>
               <th>Ordered Time</th>
               <th>Price</th>
-              <th>Customer Email</th>
+              <th>Update</th>
             </tr>
           </thead>
           <tbody>
-        
-              {
-              bookings.map((booked, idx) => (
-                <Booked key={idx} booked={booked} handleDelete={handleDelete}></Booked>
-              ))
-              }
-            
+            {bookings.map((booked, idx) => (
+              <Booked
+                key={idx}
+                booked={booked}
+                handleDelete={handleDelete}
+                handleUpdate={handleUpdate}
+              ></Booked>
+            ))}
           </tbody>
         </table>
       </div>

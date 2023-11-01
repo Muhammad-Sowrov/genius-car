@@ -13,6 +13,25 @@ const Bookings = () => {
         setBookings(data);
       });
   }, [url]);
+
+
+  const handleDelete = id => {
+    const proceed = confirm('Are you sure, you want to delete?');
+    if (proceed) {
+      fetch(`http://localhost:5000/checkout/${id}`, {
+        method: "DELETE"
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data);
+        if (data.deletedCount > 0) {
+          alert('Successfully deleted');
+          const remaining = bookings.filter(booking => booking._id !== id);
+          setBookings(remaining);
+        }
+      })
+    }
+  }
   return (
     <div>
       <h2 className="container mx-auto text-3xl">
@@ -29,16 +48,16 @@ const Bookings = () => {
                 </label>
               </th>
               <th>Name</th>
-              <th>Job</th>
-              <th>Favorite Color</th>
-              <th></th>
+              <th>Ordered Time</th>
+              <th>Price</th>
+              <th>Customer Email</th>
             </tr>
           </thead>
           <tbody>
         
               {
               bookings.map((booked, idx) => (
-                <Booked key={idx} booked={booked}></Booked>
+                <Booked key={idx} booked={booked} handleDelete={handleDelete}></Booked>
               ))
               }
             
